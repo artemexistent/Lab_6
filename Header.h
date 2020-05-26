@@ -5,7 +5,7 @@
 #include <windows.h>
 #include <algorithm>
 #include <vector>
-
+#include <fstream>
 
 using namespace std;
 
@@ -282,7 +282,7 @@ struct BinTree{
                     if (curr->l!=0)
                       curr=curr->l;
                     else return;
-                }
+                }else return;
             }
             if (f)
                 cout << "This point doesn't exist\n";
@@ -305,6 +305,105 @@ struct AVL_Tree{
 
 };
 
+
+struct TT_Tree {
+
+    Point key[3];
+private:
+    int size;      // количество занятых ключей
+    TT_Tree *first;   // *first <= key[0];
+    TT_Tree *second;  // key[0] <= *second < key[1];
+    TT_Tree *third;   // key[1] <= *third < key[2];
+    TT_Tree *fourth;  // kye[2] <= *fourth.
+    TT_Tree *parent; //Указатель на родителя нужен для того, потому что адрес корня может меняться при удалении
+
+    bool find(Point k) { // Этот метод возвращает true, если ключ k находится в вершине, иначе false.
+        for (int i = 0; i < size; ++i)
+            if (check_2(key[i],k)) return true;
+        return false;
+    }
+
+    bool find_2(Point l,Point r) { // Этот метод возвращает true, если ключ k находится в вершине, иначе false.
+        for (int i = 0; i < size; ++i)
+            if (check_3(key[i],l,r)) return true;
+        return false;
+    }
+
+    void swap(Point &x, Point &y) {
+        Point r = x;
+        x = y;
+        y = r;
+    }
+
+    void sort2(Point &x, Point &y) {
+        if (check(x,y)) swap(x, y);
+    }
+
+    void sort3(Point &x, Point &y, Point &z) {
+        if (check(x,y)) swap(x, y);
+        if (check(x,z)) swap(x, z);
+        if (check(y,z)) swap(y, z);
+    }
+
+    void sort() { // Ключи в вершинах должны быть отсортированы
+        if (size == 1) return;
+        if (size == 2) sort2(key[0], key[1]);
+        if (size == 3) sort3(key[0], key[1], key[2]);
+    }
+
+    void insert_to_TT_Tree(Point k) {  // Вставляем ключ k в вершину (не в дерево)
+        key[size] = k;
+        size++;
+        sort();
+    }
+
+    void remove_from_TT_Tree(Point k) { // Удаляем ключ k из вершины (не из дерева)
+        if (size >= 1 && check_2(key[0], k) ) {
+            key[0] = key[1];
+            key[1] = key[2];
+            size--;
+        } else if (size == 2 && check_2(key[1], k)) {
+            key[1] = key[2];
+            size--;
+        }
+    }
+
+    void become_TT_Tree2(Point k, TT_Tree *first_, TT_Tree *second_) {  // Преобразовать в 2-вершину.
+        key[0] = k;
+        first = first_;
+        second = second_;
+        third = nullptr;
+        fourth = nullptr;
+        parent = nullptr;
+        size = 1;
+    }
+
+    bool is_leaf() { // Является ли узел листом; проверка используется при вставке и удалении.
+        return (first == nullptr) && (second == nullptr) && (third == nullptr);
+    }
+
+public:
+    // Создавать всегда будем вершину только с одним ключом
+    TT_Tree(Point k): size(1), key{k, 0, 0}, first(nullptr), second(nullptr),
+                 third(nullptr), fourth(nullptr), parent(nullptr) {}
+
+    TT_Tree (Point k, TT_Tree *first_, TT_Tree *second_, TT_Tree *third_, TT_Tree *fourth_, TT_Tree *parent_):
+                            size(1), key{k, 0, 0}, first(first_), second(second_),
+                            third(third_), fourth(fourth_), parent(parent_) {}
+
+    friend TT_Tree *split(TT_Tree *item); // Метод для разделение вершины при переполнении;
+    friend TT_Tree *insert(TT_Tree *p, Point k); // Вставка в дерево;
+    friend TT_Tree *search(TT_Tree *p, Point k); // Поиск в дереве;
+    friend TT_Tree *search_2(TT_Tree *p, Point l, Point r);
+    friend TT_Tree *search_min(TT_Tree *p); // Поиск минимального элемента в поддереве;
+    friend TT_Tree *merge(TT_Tree *leaf); // Слияние используется при удалении;
+    friend TT_Tree *redistribute(TT_Tree *leaf); // Перераспределение также используется при удалении;
+    friend TT_Tree *fix(TT_Tree *leaf); // Используется после удаления для возвращения свойств дереву (использует merge или redistribute)
+    friend TT_Tree *remove(TT_Tree *p, Point k); // Собственно, из названия понятно;
+    friend void write_tt(TT_Tree* p);
+};
+
+
 int height(AVL_Tree * p);
 int bfactor(AVL_Tree * p);
 void fixh(AVL_Tree * p);
@@ -318,11 +417,12 @@ AVL_Tree *remove(AVL_Tree*p,Point k);
 void write_AVL(AVL_Tree*p);
 void search_avl_1(AVL_Tree*curr,Point k);
 void search_avl_2(AVL_Tree*curr,Point l, Point r);
-
-void Add(List *& L,Array_List &AL,BinTree * & BT,AVL_Tree * &AT,int type);
-void Write(List* & L,Array_List &AL,BinTree * & BT,AVL_Tree * &AT,int type);
-void Delet(List* & L,Array_List &AL,BinTree * & BT,AVL_Tree * &AT,int type);
-void Search_1(List* & L,Array_List &AL,BinTree * & BT,AVL_Tree * &AT,int type);
-void Search_2(List* & L,Array_List &AL,BinTree * & BT,AVL_Tree * &AT,int type);
+void Add(List *& L,Array_List &AL,BinTree * & BT,AVL_Tree * &AT,TT_Tree * &TT,int type);
+void Write(List* & L,Array_List &AL,BinTree * & BT,AVL_Tree * &AT,TT_Tree * &TT,int type);
+void Delet(List* & L,Array_List &AL,BinTree * & BT,AVL_Tree * &AT,TT_Tree * &TT,int type);
+void Search_1(List* & L,Array_List &AL,BinTree * & BT,AVL_Tree * &AT,TT_Tree * &TT,int type);
+void Search_2(List* & L,Array_List &AL,BinTree * & BT,AVL_Tree * &AT,TT_Tree *&TT,int type);
 int menu();
 int menu_2();
+void Demo();
+void Bench();

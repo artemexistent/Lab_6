@@ -1,0 +1,28 @@
+Points = 12
+
+
+List:memory  24
+Add   time:0
+Del   time:0
+Search1   time:0
+Search2   time:0.006
+Array:memory  24
+Add   time:0
+Del   time:0
+Search1   time:0.01
+Search2   time:0.008
+BinTree:memory  32
+Add   time:0
+Del   time:0
+Search1   time:0.004
+Search2   time:0.006
+AVL-TREE:memory  32
+Add   time:0
+Del   time:0
+Search1   time:0.005
+Search2   time:0
+2-3-4-TREE:memory  80
+Add   time:0
+Del   time:0
+Search1   time:0
+Search2   time:0

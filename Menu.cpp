@@ -70,31 +70,4 @@ int menu_2() {
     return key;
 }
 
-/*
 
-int menu_3() {
-    int key = 0;
-    int code;
-    do {
-        system( "cls" );
-        key = ( key + 2 ) % 2;
-        cout << "Type:\n";
-        if ( key == 0 ) cout<<"-> add_elem"<<endl;
-            else  cout<<"   add_elem"<<endl;
-        if ( key == 1 ) cout<<"-> write"<<endl;
-            else  cout<<"   write"<<endl;
-        code = _getch();
-        if ( code == 224 ){
-            code = _getch();
-            if ( code == 80 ) key ++;
-            if ( code == 72 ) key --;
-        }
-        if ( code == 27 ){
-            system( "cls" );
-            exit(0);
-        }
-    }while( code != 13 );
-    system( "cls" );
-    return key;
-}
-*/
